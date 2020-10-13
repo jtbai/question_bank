@@ -25,18 +25,16 @@ def obtain_random_question():
     random_question = randint(0, nb_question-1)
     return question_pointer.skip(random_question).next()
 
-
-def compute_nb_question_per_person():
-    mon_map = Code("function() {"
-                   "emit({matricule: this.matricule, type: this.typeQuestion}, 1);"
+def get_stats_by_matricule():
+    mon_map = Code("function(){"
+                   "emit({'matricule':this.matricule, 'type':this.typeQuestion}, 1)"
                    "}")
     mon_reduce = Code("function(key, values){"
                       "return Array.sum(values)"
                       "}")
-    results = midterm_questions_collection_pointer.map_reduce(mon_map, mon_reduce, "monitorStats")
-    print()
-    return { pointer['_id']['matricule']: pointer['value'] for pointer in results.find()}
-
+    result = midterm_questions_collection_pointer.map_reduce(mon_map, mon_reduce, "stats")
+    cursor = result.find()
+    return({value['_id']['matricule']:value['value'] for value in cursor})
 
 @application.route('/')
 def index_or_load_data():
@@ -54,6 +52,12 @@ def show_random_question():
     return render_template("question.html", question_id = question_id,
                            matricule=matricule, question=question, answer=reponse, type_question=type_question)
 
+
+@application.route('/monitoring')
+def get_monitoring_stats():
+    return get_stats_by_matricule()
+
+
 @application.route('/question/<question_id>')
 def get_question(question_id):
     question_from_db = midterm_questions_collection_pointer.find_one({"_id":ObjectId(question_id)})
@@ -66,11 +70,5 @@ def get_question(question_id):
 
     return render_template("question.html", question_id = question_id,
                            matricule=matricule, question=question, answer=reponse, type_question=type_question)
-
-
-@application.route('/monitoring')
-def get_monitoring():
-    return compute_nb_question_per_person()
-
 
 application.run('0.0.0.0',port, debug=debug)
