@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+
+  app:
+    build:
+      context: ./app
+      dockerfile: dockerfile-dev
+    depends_on:
+      - database
+      - etlpipeline
+    environment:
+      - flask_env=dev
+    command: python3 main.py
+    volumes:
+      - ./app/:/app/
+    ports:
+    - 8080:8080
+
+  database:
+    image: "mongo:4.2"
+    expose:
+    - 27017
+    volumes:
+    - ./database/mongo:/data/db
+    
+  etlpipeline:
+    depends_on:
+      - database
+    build:
+      context: ./etl
+      dockerfile: dockerfile-dev
+    volumes:
+    - ./data/:/data/
+    - ./etl/:/app/
+
+    
+    
