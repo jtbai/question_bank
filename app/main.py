@@ -12,7 +12,7 @@ if flask_env == "prod":
     port = 80
 elif flask_env == "dev":
     debug = True
-    port = 6969
+    port = 8080
 else :
     raise ValueError("Aucun comportement attendu pour l'environnement {}".format(flask_env))
 mongo_client = MongoClient(host="database")

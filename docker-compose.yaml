@@ -14,7 +14,7 @@ services:
     volumes:
     - ./app/:/app/
     ports:
-    - 8010:80
+    - 80:80
     
   database:
     image: "mongo:4.2"
