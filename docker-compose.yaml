@@ -7,12 +7,15 @@ services:
       dockerfile: dockerfile-prod
     depends_on:
       - database
+      - etlpipeline
     environment:
       - flask_env=prod
     command: python3 main.py
+    volumes:
+    - ./app/:/app/
     ports:
-    - 80:80
-
+    - 8010:80
+    
   database:
     image: "mongo:4.2"
     expose:
@@ -21,9 +24,14 @@ services:
     - ./database/mongo:/data/db
     
   etlpipeline:
+    depends_on:
+      - database
     build:
       context: ./etl
       dockerfile: dockerfile
     volumes:
     - ./data/:/data/
+    - ./etl/:/app/
 
+    
+  

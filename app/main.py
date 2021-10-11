@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from random import randint
 from pymongo import MongoClient
 from bson import ObjectId, Code
@@ -12,7 +12,7 @@ if flask_env == "prod":
     port = 80
 elif flask_env == "dev":
     debug = True
-    port = 8080
+    port = 6969
 else :
     raise ValueError("Aucun comportement attendu pour l'environnement {}".format(flask_env))
 mongo_client = MongoClient(host="database")
@@ -51,6 +51,14 @@ def show_random_question():
 
     return render_template("question.html", question_id = question_id,
                            matricule=matricule, question=question, answer=reponse, type_question=type_question)
+
+
+
+
+@application.route('/liste_de_string')
+def list_de_string():
+    return jsonify(["abc","cdh","aaa"])
+
 
 
 @application.route('/monitoring')
