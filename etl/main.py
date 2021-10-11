@@ -35,8 +35,11 @@ def get_file_last_hash(filename: str) -> str:
     if file_hash_pointer.count() == 0:
         file_hash = ""
     else:
-        file_hash = file_hash_pointer.next()[HASH]
-
+        document = file_hash_pointer.next()
+        if HASH in document:
+            return document[HASH]
+        else:
+            file_hash = ""
     return file_hash
 
 
@@ -72,15 +75,17 @@ if __name__ == "__main__":
         try:
             question_document = json.load(file_handle)
             current_document_hash = md5(str(question_document).encode()).hexdigest()
-            log_document[HASH] = current_document_hash
             if file_to_update(filename, current_document_hash):
                 delete_question(filename)
                 for question in question_document:
                     insert_question(filename, question)
                 log_document[STATUS] = "EXTRACTED"
+                log_document[HASH] = current_document_hash
                 print("Lecture complétée du fichier {}".format(filename))
+
             else:
                 log_document[STATUS] = "IGNORED"
+                log_document[HASH] = current_document_hash
                 print("Aucun changement détecté dans le fichier {}".format(filename))
         except Exception as e:
             print("Erreur avec le document {}: {}".format(filename, e.args[0]))
