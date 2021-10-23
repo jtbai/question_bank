@@ -1,7 +1,13 @@
 <!doctype html>
 <title>Banque de questions</title>
 <b>Id</b>: {{question_id}} <br>
-  <b>Auteur</b>: {{matricule}} <br>
-  <b>Type</b>: {{type_question}}<br>
-  <b>Question</b>: {{question}}<br>
-  <b>Réponse</b>: {{answer}}<br>
+<b>Auteur</b>: {{matricule}} <br>
+<b>Type</b>: {{type_question}}<br>
+<b>Question</b>: {{question}}<br>
+<div>
+  <b>Réponse</b>: 
+  <button id="reveal-btn">Afficher</button>
+  <span id="answer" style="display: none;">{{answer}}</span>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/question.js') }}"></script>
