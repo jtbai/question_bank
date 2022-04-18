@@ -1,10 +1,7 @@
-from ctypes import pointer
-from typing import Dict, Awaitable
-from colorama import Cursor
-from flask import Flask, render_template, jsonify
+from typing import Dict
+from flask import Flask, Response, render_template, jsonify
 from random import randint
-from httplib2 import Response
-from pymongo import MongoClient
+from pymongo import MongoClient, cursor
 from bson import ObjectId, Code
 import os
 
@@ -24,7 +21,7 @@ mongo_client = MongoClient(host="database")
 midterm_questions_collection_pointer = mongo_client['glo4035']['midtermQuestions']
 
 
-def obtain_random_question() -> Cursor:
+def obtain_random_question() -> cursor:
     question_pointer = midterm_questions_collection_pointer.find({})
     nb_question = question_pointer.collection.count_documents({}) 
     random_question = randint(0, nb_question-1)
