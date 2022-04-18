@@ -32,7 +32,7 @@ def get_log_document_template():
 
 def get_file_last_hash(filename: str) -> str:
     file_hash_pointer = log_collection_pointer.find({FILENAME: filename}, {HASH: 1}).sort("_id", DESCENDING)
-    if file_hash_pointer.count() == 0:
+    if file_hash_pointer.collection.count_documents({}) == 0:
         file_hash = ""
     else:
         document = file_hash_pointer.next()

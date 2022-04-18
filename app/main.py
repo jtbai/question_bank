@@ -21,7 +21,7 @@ midterm_questions_collection_pointer = mongo_client['glo4035']['midtermQuestions
 
 def obtain_random_question():
     question_pointer = midterm_questions_collection_pointer.find({})
-    nb_question = question_pointer.count()
+    nb_question = question_pointer.collection.count_documents({}) 
     random_question = randint(0, nb_question-1)
     return question_pointer.skip(random_question).next()
 
