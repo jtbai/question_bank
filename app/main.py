@@ -1,6 +1,7 @@
-from flask import Flask, render_template, jsonify
+from typing import Dict
+from flask import Flask, Response, render_template, jsonify
 from random import randint
-from pymongo import MongoClient
+from pymongo import MongoClient, cursor
 from bson import ObjectId, Code
 import os
 
@@ -19,13 +20,15 @@ mongo_client = MongoClient(host="database")
 
 midterm_questions_collection_pointer = mongo_client['glo4035']['midtermQuestions']
 
-def obtain_random_question():
+
+def obtain_random_question() -> cursor:
     question_pointer = midterm_questions_collection_pointer.find({})
-    nb_question = question_pointer.count()
+    nb_question = question_pointer.collection.count_documents({}) 
     random_question = randint(0, nb_question-1)
     return question_pointer.skip(random_question).next()
 
-def get_stats_by_matricule():
+
+def get_stats_by_matricule() -> Dict[str, str]:
     mon_map = Code("function(){"
                    "emit({'matricule':this.matricule, 'type':this.typeQuestion}, 1)"
                    "}")
@@ -36,12 +39,14 @@ def get_stats_by_matricule():
     cursor = result.find()
     return({value['_id']['matricule']:value['value'] for value in cursor})
 
+
 @application.route('/')
-def index_or_load_data():
+def index_or_load_data() -> str:
     return("<a href=/random-question>Obtenir une question</a>")
 
+
 @application.route('/random-question')
-def show_random_question():
+def show_random_question() -> str:
     question_from_db = obtain_random_question()
     question_id = question_from_db.get("_id", "")
     matricule = question_from_db.get("matricule", "")
@@ -53,21 +58,18 @@ def show_random_question():
                            matricule=matricule, question=question, answer=reponse, type_question=type_question)
 
 
-
-
 @application.route('/liste_de_string')
-def list_de_string():
+def list_de_string() -> Response:
     return jsonify(["abc","cdh","aaa"])
 
 
-
 @application.route('/monitoring')
-def get_monitoring_stats():
+def get_monitoring_stats() -> Dict[str, str]:
     return get_stats_by_matricule()
 
 
 @application.route('/question/<question_id>')
-def get_question(question_id):
+def get_question(question_id:str) -> str:
     question_from_db = midterm_questions_collection_pointer.find_one({"_id":ObjectId(question_id)})
 
     question_id = question_from_db.get("_id", "")

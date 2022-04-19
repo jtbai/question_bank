@@ -1,7 +1,23 @@
 <!doctype html>
 <title>Banque de questions</title>
-<b>Id</b>: {{question_id}} <br>
-  <b>Auteur</b>: {{matricule}} <br>
-  <b>Type</b>: {{type_question}}<br>
-  <b>Question</b>: {{question}}<br>
-  <b>Réponse</b>: {{answer}}<br>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/question.css') }}">
+<div class="info">
+  <p><span class="label">Id</span>: {{question_id}}</p>
+  <p><span class="label">Auteur</span>: {{matricule}}</p>
+  <p><span class="label">Type</span>: {{type_question}}</p>
+</div>
+<div class="question">
+  <p class="label">Question</p> 
+  <p>{{question}}</p>
+</div>
+<div class="answer">
+  <p class="label">Réponse</p>
+  <button id="reveal-btn">Afficher</button>
+  {% autoescape false %}
+  <div id="answer"><p>{{answer}}</p></div>
+  {% endautoescape %}
+</div>
+<p id="next">
+  <button id="next-btn">Autre question</button>
+</p>
+<script src="{{ url_for('static', filename='scripts/question.js') }}"></script>

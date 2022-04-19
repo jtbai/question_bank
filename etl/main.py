@@ -1,7 +1,8 @@
+from sqlite3 import Date
 from pymongo import MongoClient, DESCENDING
 from datetime import datetime
 from os import listdir, path
-from typing import Tuple
+from typing import Any, Dict, Generator, Tuple, TextIO
 from hashlib import md5
 import json
 
@@ -18,26 +19,26 @@ log_collection_pointer = mongo_client['glo4035']['log']
 midterm_questions_collection_pointer = mongo_client['glo4035']['midtermQuestions']
 
 
-def get_source_file(data_source_path: str) -> Tuple[str, list]:
+def get_source_file(data_source_path: str) -> Generator[Tuple[str, TextIO], None, None]:
     for file in listdir(data_source_path):
         file_handle = open(path.join(data_source_path, file))
         yield file, file_handle
 
 
-def get_log_document_template():
+def get_log_document_template() -> Dict[str, str]:
     return {
-        "date": datetime.now()
+        "date": str(datetime.now())
     }
 
 
 def get_file_last_hash(filename: str) -> str:
     file_hash_pointer = log_collection_pointer.find({FILENAME: filename}, {HASH: 1}).sort("_id", DESCENDING)
-    if file_hash_pointer.count() == 0:
+    if file_hash_pointer.collection.count_documents({}) == 0:
         file_hash = ""
     else:
         document = file_hash_pointer.next()
         if HASH in document:
-            return document[HASH]
+            return str(document[HASH])
         else:
             file_hash = ""
     return file_hash
@@ -48,21 +49,21 @@ def file_to_update(filename : str, file_hash : str) -> bool:
     return file_hash != last_hash
 
 
-def insert_log(log_document: dict):
+def insert_log(log_document: Dict[str, Any]) -> None:
     log_collection_pointer.insert_one(log_document)
 
 
-def anonimize_question(question_document: dict):
+def anonimize_question(question_document: Dict[str, Any]) -> None:
     del question_document[NOMCOMPLET]
 
 
-def insert_question(source_file: str, question_document : dict):
+def insert_question(source_file: str, question_document : Dict[str, Any]) -> None:
     question_document[FILENAME] = source_file
     anonimize_question(question_document)
     midterm_questions_collection_pointer.insert_one(question_document)
 
 
-def delete_question(source_file: str):
+def delete_question(source_file: str) -> None:
     midterm_questions_collection_pointer.delete_many({FILENAME:source_file})
 
 
